@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<!--  null 값이 파라미터로 전달될 때 오류나지 않게 null 처리 -->
+		<!--  이 것을 하면 #{parameter, jdbcType=VARCHAR} 이렇게 안해도 됨 -->
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	
+	<typeAliases>
+		<package name="com.king.myweb" />
+	</typeAliases>
+</configuration>

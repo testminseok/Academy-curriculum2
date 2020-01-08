@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board"> 
+<!-- 작성 --> 
+   <insert id="write"> 
+      insert into myBoard(bno, title, content, writer) values(myBoard_seq.nextval, #{title}, #{content}, #{writer})
+   </insert>
+   <select id="list" resultType="com.king.myweb.domain.BoardVO">
+   	  SELECT BNO,TITLE,WRITER, REGDATE FROM MYBOARD ORDER BY BNO DESC
+   </select>
+   
+   <select id="listPage" resultType="com.king.myweb.domain.BoardVO" parameterType="com.king.myweb.domain.Criteria">
+   	  SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, VIEWCNT FROM(
+   	  	SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, VIEWCNT, ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM FROM MYBOARD
+   	  ) MB WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd} ORDER BY BNO DESC
+   </select>
+   <!-- <![CDATA[]] 안에 들어가는 문장을 문자열로 인식하게 됩니다.
+   		Mybatis 사용시 쿼리문에 문자열 비교연산자나 부등호를 처리할 때가 있습니다.
+   		그러면 < 와 같은 기호를 괄호인지 아니면 비교연산자인지 확인 되지않습니다.
+   		 이외에도 특수 문자를 사용하는데 제한이 있습니다. CDATA안에 들어가는 문장을 문자열로 인식하게 합니다. -->
+   <select id="listCount" resultType="int">
+   <![CDATA[
+   	  select count(bno) from myBoard where bno > 0
+   ]]>
+   </select>
+	   <!-- 조회 -->   
+   <select id="read" resultType="com.king.myweb.domain.BoardVO">
+   	  SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, VIEWCNT FROM MYBOARD WHERE BNO = #{bno}
+   </select>
+   <select id="listSearch" resultType="com.king.myweb.domain.BoardVO" parameterType="com.king.myweb.domain.SearchCriteria">
+   	SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, VIEWCNT FROM(
+   	SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, VIEWCNT, ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM FROM MYBOARD <include refid="search"></include>
+   	) MB WHERE RNUM BETWEEN #{rowStart} and #{rowEnd} ORDER BY BNO DESC
+   </select>
+   <sql id="search">
+   		<if test="searchType != null">
+   			<if test="searchType == 't'.toString()">where title like '%' || #{keyword} || '%'</if>
+   			<if test="searchType == 'c'.toString()">where content like '%' || #{keyword} || '%'</if>
+   			<if test="searchType == 'w'.toString()">where writer like '%' || #{keyword} || '%'</if>
+   			<if test="searchType == 'tc'.toString()">where (title like '%' || #{keyword} || '%') or (content like '%' || #{keyword} || '%')</if>
+   		</if>
+   </sql>
+   <update id="update">
+   		UPDATE MYBOARD SET TITLE =#{title}, CONTENT=#{content} WHERE BNO = #{bno}
+   </update>
+   
+   <delete id="delete"> 
+   		DELETE FROM MYBOARD WHERE BNO = #{bno}
+   </delete> 
+   <update id="readCnt">
+		UPDATE MYBOARD SET VIEWCNT = VIEWCNT+1 WHERE BNO = #{bno}   
+   </update>
+   
+  
+   
+   
+</mapper>
